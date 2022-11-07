@@ -1,0 +1,375 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator erd {
+  provider = "prisma-erd-generator"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model areas {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  descricao  String?
+  is_ativo   Boolean   @default(false)
+  cliente_id Int?      @db.UnsignedInt
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model clientes {
+  id               BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  cnpj             String    @unique(map: "clientes_cnpj_unique") @db.VarChar(18)
+  razao_social     String?   @db.VarChar(255)
+  nome_fantasia    String?   @db.VarChar(255)
+  jornada_trabalho Float?
+  is_ativo         Boolean   @default(false)
+  created_at       DateTime? @db.Timestamp(0)
+  updated_at       DateTime? @db.Timestamp(0)
+}
+
+model colaborador_projeto {
+  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  colaborador_id Int?      @db.UnsignedInt
+  projeto_id     Int?      @db.UnsignedInt
+  funcao         String?
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+}
+
+model colaboradores {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  cpf        String?   @db.VarChar(14)
+  nome       String?
+  telefone   String?   @db.VarChar(15)
+  funcao     String?
+  is_ativo   Boolean   @default(false)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model evento_galeria_arquivos {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  evento_id  Int?      @db.UnsignedInt
+  arquivo    String?   @db.VarChar(255)
+  tipo       String?   @db.VarChar(15)
+  legenda    String?   @db.VarChar(255)
+  tamanho    Float?
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model evento_galeria_audios {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  evento_id  Int?      @db.UnsignedInt
+  audio      String?   @db.VarChar(255)
+  tipo       String?   @db.VarChar(15)
+  legenda    String?   @db.VarChar(255)
+  tamanho    Float?
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model evento_galeria_imagems {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  evento_id  Int?      @db.UnsignedInt
+  imagem     String?   @db.VarChar(255)
+  tipo       String?   @db.VarChar(15)
+  legenda    String?   @db.VarChar(255)
+  tamanho    Float?
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model evento_subevento {
+  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  evento_id    Int?      @db.UnsignedInt
+  subevento_id Int?      @db.UnsignedInt
+  ordem        Int       @default(0) @db.TinyInt
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+}
+
+model evento_tipos {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  titulo     String?
+  slug       String?
+  descricao  String?   @db.Text
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model eventos {
+  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  latitude       String?
+  longitude      String?
+  dados          Json?
+  midia          String?
+  projeto_id     Int?      @db.UnsignedInt
+  evento_tipo_id Int?      @db.UnsignedInt
+  app_id         String?
+  app_created_at DateTime? @db.Timestamp(0)
+  app_updated_at DateTime? @db.Timestamp(0)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+  deleted_at     DateTime? @db.Timestamp(0)
+}
+
+model failed_jobs {
+  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  connection String   @db.Text
+  queue      String   @db.Text
+  payload    String   @db.LongText
+  exception  String   @db.LongText
+  failed_at  DateTime @default(now()) @db.Timestamp(0)
+}
+
+model fila_transcricaos {
+  id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  evento_id     Int?      @db.UnsignedInt
+  transcricao   String?   @db.Text
+  is_processado Boolean   @default(false)
+  created_at    DateTime? @db.Timestamp(0)
+  updated_at    DateTime? @db.Timestamp(0)
+}
+
+model jobs {
+  id           BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+  queue        String
+  payload      String @db.LongText
+  attempts     Int    @db.UnsignedTinyInt
+  reserved_at  Int?   @db.UnsignedInt
+  available_at Int    @db.UnsignedInt
+  created_at   Int    @db.UnsignedInt
+
+  @@index([queue], map: "jobs_queue_index")
+}
+
+model material_categorias {
+  id                    BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  nome                  String?   @db.VarChar(255)
+  calcula_metragem      Boolean   @default(false)
+  unidade_medida_padrao String?   @db.VarChar(255)
+  is_ativo              Boolean?  @default(false)
+  created_at            DateTime? @db.Timestamp(0)
+  updated_at            DateTime? @db.Timestamp(0)
+}
+
+model materials {
+  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  categoria_id   Int?      @db.UnsignedInt
+  nome           String?   @db.VarChar(255)
+  medida         String    @default("1,00")
+  unidade_medida String?   @db.VarChar(255)
+  is_ativo       Boolean?  @default(false)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+}
+
+model migrations {
+  id        Int    @id @default(autoincrement()) @db.UnsignedInt
+  migration String
+  batch     Int
+}
+
+model model_has_permissions {
+  permission_id BigInt      @db.UnsignedBigInt
+  model_type    String
+  model_id      BigInt      @db.UnsignedBigInt
+  permissions   permissions @relation(fields: [permission_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "model_has_permissions_permission_id_foreign")
+
+  @@id([permission_id, model_id, model_type])
+  @@index([model_id, model_type], map: "model_has_permissions_model_id_model_type_index")
+}
+
+model model_has_roles {
+  role_id    BigInt @db.UnsignedBigInt
+  model_type String
+  model_id   BigInt @db.UnsignedBigInt
+  roles      roles  @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "model_has_roles_role_id_foreign")
+
+  @@id([role_id, model_id, model_type])
+  @@index([model_id, model_type], map: "model_has_roles_model_id_model_type_index")
+}
+
+model motivo_paradas {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  motivo     String?   @db.Text
+  is_ativo   Boolean   @default(false)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model oauth_access_tokens {
+  id         String    @id @db.VarChar(100)
+  user_id    BigInt?   @db.UnsignedBigInt
+  client_id  BigInt    @db.UnsignedBigInt
+  name       String?
+  scopes     String?   @db.Text
+  revoked    Boolean
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  expires_at DateTime? @db.DateTime(0)
+
+  @@index([user_id], map: "oauth_access_tokens_user_id_index")
+}
+
+model oauth_auth_codes {
+  id         String    @id @db.VarChar(100)
+  user_id    BigInt    @db.UnsignedBigInt
+  client_id  BigInt    @db.UnsignedBigInt
+  scopes     String?   @db.Text
+  revoked    Boolean
+  expires_at DateTime? @db.DateTime(0)
+
+  @@index([user_id], map: "oauth_auth_codes_user_id_index")
+}
+
+model oauth_clients {
+  id                     BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id                BigInt?   @db.UnsignedBigInt
+  name                   String
+  secret                 String?   @db.VarChar(100)
+  redirect               String    @db.Text
+  personal_access_client Boolean
+  password_client        Boolean
+  revoked                Boolean
+  created_at             DateTime? @db.Timestamp(0)
+  updated_at             DateTime? @db.Timestamp(0)
+
+  @@index([user_id], map: "oauth_clients_user_id_index")
+}
+
+model oauth_personal_access_clients {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  client_id  BigInt    @db.UnsignedBigInt
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model oauth_refresh_tokens {
+  id              String    @id @db.VarChar(100)
+  access_token_id String    @db.VarChar(100)
+  revoked         Boolean
+  expires_at      DateTime? @db.DateTime(0)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model password_resets {
+  email      String
+  token      String
+  created_at DateTime? @db.Timestamp(0)
+
+  @@index([email], map: "password_resets_email_index")
+  @@ignore
+}
+
+model permissions {
+  id                    BigInt                  @id @default(autoincrement()) @db.UnsignedBigInt
+  name                  String
+  guard_name            String
+  created_at            DateTime?               @db.Timestamp(0)
+  updated_at            DateTime?               @db.Timestamp(0)
+  model_has_permissions model_has_permissions[]
+  role_has_permissions  role_has_permissions[]
+}
+
+model projeto_galeria_arquivos {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  projeto_id Int?      @db.UnsignedInt
+  arquivo    String?   @db.VarChar(255)
+  tipo       String?   @db.VarChar(15)
+  legenda    String?   @db.VarChar(255)
+  tamanho    Float?
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model projeto_usuario {
+  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  projeto_id   Int?      @db.UnsignedInt
+  usuario_id   Int?      @db.UnsignedInt
+  tipo_usuario Int?      @db.TinyInt
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+}
+
+model projetos {
+  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  wo             String?
+  motivo         String?   @db.Text
+  st             String?
+  tag            String?
+  planta         String?
+  tipo_servico   Int?      @db.TinyInt
+  tipo_andaime   Int?      @db.TinyInt
+  classificacao  Int?      @db.TinyInt
+  data_inicio    DateTime? @db.DateTime(0)
+  data_conclusao DateTime? @db.DateTime(0)
+  data_validade  DateTime? @db.DateTime(0)
+  situacao       Int?      @db.TinyInt
+  latitude       String?
+  longitude      String?
+  area_id        Int?      @db.UnsignedInt
+  cliente_id     Int?      @db.UnsignedInt
+  is_ativo       Boolean   @default(false)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+
+  @@index([wo], map: "projetos_wo_index")
+}
+
+model role_has_permissions {
+  permission_id BigInt      @db.UnsignedBigInt
+  role_id       BigInt      @db.UnsignedBigInt
+  permissions   permissions @relation(fields: [permission_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "role_has_permissions_permission_id_foreign")
+  roles         roles       @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "role_has_permissions_role_id_foreign")
+
+  @@id([permission_id, role_id])
+  @@index([role_id], map: "role_has_permissions_role_id_foreign")
+}
+
+model roles {
+  id                   BigInt                 @id @default(autoincrement()) @db.UnsignedBigInt
+  name                 String
+  guard_name           String
+  created_at           DateTime?              @db.Timestamp(0)
+  updated_at           DateTime?              @db.Timestamp(0)
+  model_has_roles      model_has_roles[]
+  role_has_permissions role_has_permissions[]
+}
+
+model rotina_evento_tipo {
+  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  ordem          Int       @default(0) @db.SmallInt
+  is_obrigatorio Boolean   @default(false)
+  evento_tipo_id Int?      @db.UnsignedInt
+  rotina_id      Int?      @db.UnsignedInt
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+}
+
+model rotinas {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  titulo     String?
+  descricao  String?   @db.Text
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model users {
+  id                BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name              String
+  email             String    @unique(map: "users_email_unique")
+  email_verified_at DateTime? @db.Timestamp(0)
+  password          String
+  remember_token    String?   @db.VarChar(100)
+  tipo              Boolean?
+  cliente_id        Int?      @db.UnsignedInt
+  is_ativo          Boolean   @default(false)
+  created_at        DateTime? @db.Timestamp(0)
+  updated_at        DateTime? @db.Timestamp(0)
+}

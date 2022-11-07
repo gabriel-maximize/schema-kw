@@ -1,0 +1,15 @@
+version: "3"
+
+services:
+  database:
+    image: mariadb
+    container_name: "kw-database"
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: kwbrasil
+      MYSQL_DATABASE: kw
+    volumes:
+      - db:/var/lib/mysql/data
+volumes:
+  db:

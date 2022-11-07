@@ -15,9 +15,13 @@ model areas {
   id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
   descricao  String?
   is_ativo   Boolean   @default(false)
-  cliente_id Int?      @db.UnsignedInt
   created_at DateTime? @db.Timestamp(0)
   updated_at DateTime? @db.Timestamp(0)
+
+  clientes   clientes  @relation(fields: [cliente_id], references: [id])
+  cliente_id BigInt    @db.UnsignedBigInt
+
+  projetos   projetos[]
 }
 
 model clientes {
@@ -29,6 +33,8 @@ model clientes {
   is_ativo         Boolean   @default(false)
   created_at       DateTime? @db.Timestamp(0)
   updated_at       DateTime? @db.Timestamp(0)
+  areas            areas[]
+  projetos         projetos[]
 }
 
 model colaborador_projeto {
@@ -118,15 +124,6 @@ model eventos {
   deleted_at     DateTime? @db.Timestamp(0)
 }
 
-model failed_jobs {
-  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
-  connection String   @db.Text
-  queue      String   @db.Text
-  payload    String   @db.LongText
-  exception  String   @db.LongText
-  failed_at  DateTime @default(now()) @db.Timestamp(0)
-}
-
 model fila_transcricaos {
   id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
   evento_id     Int?      @db.UnsignedInt
@@ -134,18 +131,6 @@ model fila_transcricaos {
   is_processado Boolean   @default(false)
   created_at    DateTime? @db.Timestamp(0)
   updated_at    DateTime? @db.Timestamp(0)
-}
-
-model jobs {
-  id           BigInt @id @default(autoincrement()) @db.UnsignedBigInt
-  queue        String
-  payload      String @db.LongText
-  attempts     Int    @db.UnsignedTinyInt
-  reserved_at  Int?   @db.UnsignedInt
-  available_at Int    @db.UnsignedInt
-  created_at   Int    @db.UnsignedInt
-
-  @@index([queue], map: "jobs_queue_index")
 }
 
 model material_categorias {
@@ -169,112 +154,12 @@ model materials {
   updated_at     DateTime? @db.Timestamp(0)
 }
 
-model migrations {
-  id        Int    @id @default(autoincrement()) @db.UnsignedInt
-  migration String
-  batch     Int
-}
-
-model model_has_permissions {
-  permission_id BigInt      @db.UnsignedBigInt
-  model_type    String
-  model_id      BigInt      @db.UnsignedBigInt
-  permissions   permissions @relation(fields: [permission_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "model_has_permissions_permission_id_foreign")
-
-  @@id([permission_id, model_id, model_type])
-  @@index([model_id, model_type], map: "model_has_permissions_model_id_model_type_index")
-}
-
-model model_has_roles {
-  role_id    BigInt @db.UnsignedBigInt
-  model_type String
-  model_id   BigInt @db.UnsignedBigInt
-  roles      roles  @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "model_has_roles_role_id_foreign")
-
-  @@id([role_id, model_id, model_type])
-  @@index([model_id, model_type], map: "model_has_roles_model_id_model_type_index")
-}
-
 model motivo_paradas {
   id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
   motivo     String?   @db.Text
   is_ativo   Boolean   @default(false)
   created_at DateTime? @db.Timestamp(0)
   updated_at DateTime? @db.Timestamp(0)
-}
-
-model oauth_access_tokens {
-  id         String    @id @db.VarChar(100)
-  user_id    BigInt?   @db.UnsignedBigInt
-  client_id  BigInt    @db.UnsignedBigInt
-  name       String?
-  scopes     String?   @db.Text
-  revoked    Boolean
-  created_at DateTime? @db.Timestamp(0)
-  updated_at DateTime? @db.Timestamp(0)
-  expires_at DateTime? @db.DateTime(0)
-
-  @@index([user_id], map: "oauth_access_tokens_user_id_index")
-}
-
-model oauth_auth_codes {
-  id         String    @id @db.VarChar(100)
-  user_id    BigInt    @db.UnsignedBigInt
-  client_id  BigInt    @db.UnsignedBigInt
-  scopes     String?   @db.Text
-  revoked    Boolean
-  expires_at DateTime? @db.DateTime(0)
-
-  @@index([user_id], map: "oauth_auth_codes_user_id_index")
-}
-
-model oauth_clients {
-  id                     BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
-  user_id                BigInt?   @db.UnsignedBigInt
-  name                   String
-  secret                 String?   @db.VarChar(100)
-  redirect               String    @db.Text
-  personal_access_client Boolean
-  password_client        Boolean
-  revoked                Boolean
-  created_at             DateTime? @db.Timestamp(0)
-  updated_at             DateTime? @db.Timestamp(0)
-
-  @@index([user_id], map: "oauth_clients_user_id_index")
-}
-
-model oauth_personal_access_clients {
-  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
-  client_id  BigInt    @db.UnsignedBigInt
-  created_at DateTime? @db.Timestamp(0)
-  updated_at DateTime? @db.Timestamp(0)
-}
-
-model oauth_refresh_tokens {
-  id              String    @id @db.VarChar(100)
-  access_token_id String    @db.VarChar(100)
-  revoked         Boolean
-  expires_at      DateTime? @db.DateTime(0)
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
-model password_resets {
-  email      String
-  token      String
-  created_at DateTime? @db.Timestamp(0)
-
-  @@index([email], map: "password_resets_email_index")
-  @@ignore
-}
-
-model permissions {
-  id                    BigInt                  @id @default(autoincrement()) @db.UnsignedBigInt
-  name                  String
-  guard_name            String
-  created_at            DateTime?               @db.Timestamp(0)
-  updated_at            DateTime?               @db.Timestamp(0)
-  model_has_permissions model_has_permissions[]
-  role_has_permissions  role_has_permissions[]
 }
 
 model projeto_galeria_arquivos {
@@ -302,62 +187,35 @@ model projetos {
   wo             String?
   motivo         String?   @db.Text
   st             String?
-  tag            String?
   planta         String?
-  tipo_servico   Int?      @db.TinyInt
-  tipo_andaime   Int?      @db.TinyInt
-  classificacao  Int?      @db.TinyInt
   data_inicio    DateTime? @db.DateTime(0)
   data_conclusao DateTime? @db.DateTime(0)
   data_validade  DateTime? @db.DateTime(0)
-  situacao       Int?      @db.TinyInt
   latitude       String?
   longitude      String?
-  area_id        Int?      @db.UnsignedInt
-  cliente_id     Int?      @db.UnsignedInt
   is_ativo       Boolean   @default(false)
   created_at     DateTime? @db.Timestamp(0)
   updated_at     DateTime? @db.Timestamp(0)
 
+  clientes       clientes  @relation(fields: [cliente_id], references: [id])
+  cliente_id     BigInt    @db.UnsignedBigInt
+
+  areas          areas     @relation(fields: [area_id], references: [id])
+  area_id        BigInt    @db.UnsignedBigInt
+
+  andaimes       andaime   @relation(fields: [andaimeId], references: [id])
+  andaimeId      BigInt    @db.UnsignedBigInt
+
+  tipos_servicos  tipo_servico  @relation(fields: [tipo_servico], references: [id])
+  tipo_servico    BigInt        @db.UnsignedBigInt
+
+  classificacoes  classificacao @relation(fields: [classificacao], references: [id])
+  classificacao   BigInt        @db.UnsignedBigInt
+  
+  situacoes       situacao      @relation(fields: [situacao], references: [id])
+  situacao        BigInt        @db.UnsignedBigInt
+
   @@index([wo], map: "projetos_wo_index")
-}
-
-model role_has_permissions {
-  permission_id BigInt      @db.UnsignedBigInt
-  role_id       BigInt      @db.UnsignedBigInt
-  permissions   permissions @relation(fields: [permission_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "role_has_permissions_permission_id_foreign")
-  roles         roles       @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "role_has_permissions_role_id_foreign")
-
-  @@id([permission_id, role_id])
-  @@index([role_id], map: "role_has_permissions_role_id_foreign")
-}
-
-model roles {
-  id                   BigInt                 @id @default(autoincrement()) @db.UnsignedBigInt
-  name                 String
-  guard_name           String
-  created_at           DateTime?              @db.Timestamp(0)
-  updated_at           DateTime?              @db.Timestamp(0)
-  model_has_roles      model_has_roles[]
-  role_has_permissions role_has_permissions[]
-}
-
-model rotina_evento_tipo {
-  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
-  ordem          Int       @default(0) @db.SmallInt
-  is_obrigatorio Boolean   @default(false)
-  evento_tipo_id Int?      @db.UnsignedInt
-  rotina_id      Int?      @db.UnsignedInt
-  created_at     DateTime? @db.Timestamp(0)
-  updated_at     DateTime? @db.Timestamp(0)
-}
-
-model rotinas {
-  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
-  titulo     String?
-  descricao  String?   @db.Text
-  created_at DateTime? @db.Timestamp(0)
-  updated_at DateTime? @db.Timestamp(0)
 }
 
 model users {
@@ -370,6 +228,39 @@ model users {
   tipo              Boolean?
   cliente_id        Int?      @db.UnsignedInt
   is_ativo          Boolean   @default(false)
-  created_at        DateTime? @db.Timestamp(0)
-  updated_at        DateTime? @db.Timestamp(0)
+  created_at        DateTime? @default(now())
+  updated_at        DateTime? @default(now())
+}
+
+model andaime {
+  id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  tag           String    @unique
+  tipo_andaime  String
+  created_at    DateTime? @default(now())
+  updated_at    DateTime? @default(now())
+  projetos      projetos[]
+}
+
+model tipo_servico {
+  id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  servico       String    @unique
+  created_at    DateTime? @default(now())
+  updated_at    DateTime? @default(now())
+  projetos      projetos[]
+}
+
+model classificacao {
+  id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  classificacao String    @unique
+  created_at    DateTime? @default(now())
+  updated_at    DateTime? @default(now())
+  projetos      projetos[]
+}
+
+model situacao {
+  id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  situacao      String    @unique
+  created_at    DateTime? @default(now())
+  updated_at    DateTime? @default(now())
+  projetos      projetos[]
 }
